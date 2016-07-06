@@ -9,13 +9,13 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class GtidSetTest extends TestCase {	
-    public GtidSetTest(String testName) {
+public class GtidSyncTest extends TestCase {	
+    public GtidSyncTest(String testName) {
         super(testName);
     }
 
     public static Test suite() {
-        return new TestSuite(GtidSetTest.class);
+        return new TestSuite(GtidSyncTest.class);
     }
     
     public CuratorZookeeperClient createCuratorZookeeperClient() {
@@ -26,14 +26,14 @@ public class GtidSetTest extends TestCase {
     }
 
     public void testGtidSet() {
-    	new GtidSet("/replicaza_test_gtid", createCuratorZookeeperClient());
+    	new GtidSync("/replicaza_test_gtid", createCuratorZookeeperClient());
     }
 
     public void testSetGtidSet() {
-    	GtidSet gtidSet = new GtidSet("/replicaza_test_gtid", createCuratorZookeeperClient());
-    	gtidSet.setGtidSet("id:range");
+    	GtidSync gtidSync = new GtidSync("/replicaza_test_gtid", createCuratorZookeeperClient());
+    	gtidSync.setGtidSet("id:range");
     	
-    	assertEquals("id:range", gtidSet.getGtidSet());
+    	assertEquals("id:range", gtidSync.getGtidSet());
     }
 
     public void testGetGtidSet() {
@@ -45,13 +45,13 @@ public class GtidSetTest extends TestCase {
     }
     
     public void testSaveGtidSet() throws Exception {
-    	GtidSet gtidSet = new GtidSet("/replicaza_test_gtid", createCuratorZookeeperClient());
-    	gtidSet.setGtidSet("id:range");
+    	GtidSync gtidSync = new GtidSync("/replicaza_test_gtid", createCuratorZookeeperClient());
+    	gtidSync.setGtidSet("id:range");
     	
-    	assertEquals("id:range", gtidSet.saveGtidSet());
+    	assertEquals("id:range", gtidSync.saveGtidSet());
     	
-    	GtidSet newGtidSet = new GtidSet("/replicaza_test_gtid", createCuratorZookeeperClient());
+    	GtidSync newGtidSync = new GtidSync("/replicaza_test_gtid", createCuratorZookeeperClient());
     	
-    	assertEquals("id:range", newGtidSet.getGtidSet());
+    	assertEquals("id:range", newGtidSync.getGtidSet());
     }
 }

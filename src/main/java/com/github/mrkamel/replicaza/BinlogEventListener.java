@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jboss.netty.util.internal.StringUtil;
-import org.json.JSONObject;
 
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
 import com.github.shyiko.mysql.binlog.BinaryLogClient.EventListener;
@@ -25,14 +24,14 @@ public class BinlogEventListener implements EventListener {
 	private Map<Long, Table> tableMap;
 	private KafkaProducer kafkaProducer;
 	private Set<String> replicateTables;
-	private GtidSet gtidSet;
+	private String gtidSet;
 
-	public BinlogEventListener(BinaryLogClient binaryLogClient, GtidSet gtidSet, KafkaProducer kafkaProducer) {
+	public BinlogEventListener(BinaryLogClient binaryLogClient, KafkaProducer kafkaProducer) {
 		this.binaryLogClient = binaryLogClient;
 		this.tableMap = new HashMap<Long, Table>();
 		this.kafkaProducer = kafkaProducer;
-		this.gtidSet = gtidSet;
-		
+		this.gtidSet = binaryLogClient.getGtidSet();
+
 		this.replicateTables = new HashSet<String>();
 		
 		for(String fqTable: StringUtil.split(App.config.getProperty("replicateTables"), ',')) {
@@ -74,9 +73,9 @@ public class BinlogEventListener implements EventListener {
 				return;
 			
 			for(Object[] row: data.getRows())
-				kafkaProducer.send(fqTable, row[0].toString(), new JSONObject().put("op", "insert").put("id", row[0]).put("time", time).toString());
+				kafkaProducer.send(fqTable, gtidSet, "insert", row[0].toString(), time);
 			
-			gtidSet.setGtidSet(binaryLogClient.getGtidSet());
+			gtidSet = binaryLogClient.getGtidSet();
 		} else if(eventName.equals("EXT_UPDATE_ROWS")) {
 			UpdateRowsEventData data = event.getData();
 			Table table = tableMap.get(data.getTableId());
@@ -86,9 +85,9 @@ public class BinlogEventListener implements EventListener {
 				return;
 			
 			for(Map.Entry<Serializable[], Serializable[]> row: data.getRows())
-				kafkaProducer.send(fqTable, row.getKey()[0].toString(), new JSONObject().put("op", "update").put("id", row.getKey()[0]).put("time", time).toString());
+				kafkaProducer.send(fqTable, gtidSet, "update", row.getKey()[0].toString(), time);
 
-			gtidSet.setGtidSet(binaryLogClient.getGtidSet());
+			gtidSet = binaryLogClient.getGtidSet();
 		} else if(eventName.equals("EXT_DELETE_ROWS")) {
 			DeleteRowsEventData data = event.getData();
 			Table table = tableMap.get(data.getTableId());
@@ -98,9 +97,9 @@ public class BinlogEventListener implements EventListener {
 				return;
 			
 			for(Object[] row: data.getRows())
-				kafkaProducer.send(fqTable, row[0].toString(), new JSONObject().put("op", "delete").put("id", row[0]).put("time", time).toString());
+				kafkaProducer.send(fqTable, gtidSet, "delete", row[0].toString(), time);
 
-			gtidSet.setGtidSet(binaryLogClient.getGtidSet());	
+			gtidSet = binaryLogClient.getGtidSet();	
 		} else if(eventName.equals("TABLE_MAP")) {
 			TableMapEventData data = event.getData();
 				

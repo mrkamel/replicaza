@@ -6,17 +6,16 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs.Ids;
 
-public class GtidSet extends Thread {	
+public class GtidSync extends Thread {	
 	private String gtidSet = "";
 	private CuratorZookeeperClient curatorZookeeperClient;
 	private String zkPath;
 	
-	public GtidSet(String zkPath, CuratorZookeeperClient curatorZookeeperClient) {
+	public GtidSync(String zkPath, CuratorZookeeperClient curatorZookeeperClient) {
 		this.curatorZookeeperClient = curatorZookeeperClient;
 		this.zkPath = zkPath;
 		
 		loadGtidSet();
-		start();
 	}
 	
 	public synchronized void setGtidSet(String gtidSet) {
@@ -28,10 +27,14 @@ public class GtidSet extends Thread {
 	}
 	
 	private void loadGtidSet() {
-		try {
-			loadGtidSetUnsafe();
-		} catch (Exception e) {
-			e.printStackTrace();
+		while(true) {
+			try {
+				loadGtidSetUnsafe();
+				
+				return;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	

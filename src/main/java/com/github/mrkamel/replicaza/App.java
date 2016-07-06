@@ -16,14 +16,9 @@ public class App {
     	config = new Config(args[0]);
 
 		CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient(config.getProperty("zookeeper.hosts"), new ExponentialBackoffRetry(1000, 3));
-
     	curatorFramework.start();
-
-    	GtidSet gtidSet = new GtidSet("/replicaza_gtid", curatorFramework.getZookeeperClient());
-   
-    	LeaderSelector leaderSelector = new LeaderSelector(curatorFramework, "/replicaza_leader", new LeaderListener(gtidSet));
-
-    	leaderSelector.autoRequeue();
+    	
+    	LeaderSelector leaderSelector = new LeaderSelector(curatorFramework, "/replicaza_leader", new LeaderListener());
     	leaderSelector.start();
 		
         Runtime.getRuntime().addShutdownHook(new ShutdownHook(leaderSelector, curatorFramework));

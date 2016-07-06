@@ -42,18 +42,16 @@ public class BinlogEventListenerTest extends TestCase {
     }
     
     private KafkaProducer createKafkaProducer() {
-    	return new KafkaProducer("127.0.0.1:9092", 1);
-    }
-
-    private GtidSet createGtidSet() {
     	CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient("127.0.0.1", new ExponentialBackoffRetry(1000, 3));
     	curatorFramework.start();
     	
-    	return new GtidSet("/replicaza_test_gtid", curatorFramework.getZookeeperClient());
+    	GtidSync gtidSync = new GtidSync("/replicaza_test_gtid", curatorFramework.getZookeeperClient());
+    	
+    	return new KafkaProducer("127.0.0.1:9092", 1, gtidSync);
     }
     
     public void testBinlogEventListener() {
-    	new BinlogEventListener(createBinaryLogClient(), createGtidSet(), createKafkaProducer());
+    	new BinlogEventListener(createBinaryLogClient(), createKafkaProducer());
     }
 
     public Event createTableMapEvent(int tableId, String database, String table) {
@@ -69,7 +67,7 @@ public class BinlogEventListenerTest extends TestCase {
     }
     
     public void testOnEventWriteRows() {
-    	BinlogEventListener binlogEventListener = new BinlogEventListener(createBinaryLogClient(), createGtidSet(), createKafkaProducer());
+    	BinlogEventListener binlogEventListener = new BinlogEventListener(createBinaryLogClient(), createKafkaProducer());
     	
     	binlogEventListener.onEvent(createTableMapEvent(1, "database", "table"));
     	
@@ -91,7 +89,7 @@ public class BinlogEventListenerTest extends TestCase {
     }
     
     public void testOnEventDeleteRows() {
-    	BinlogEventListener binlogEventListener = new BinlogEventListener(createBinaryLogClient(), createGtidSet(), createKafkaProducer());
+    	BinlogEventListener binlogEventListener = new BinlogEventListener(createBinaryLogClient(), createKafkaProducer());
     	
     	binlogEventListener.onEvent(createTableMapEvent(1, "database", "table"));
     	
@@ -113,7 +111,7 @@ public class BinlogEventListenerTest extends TestCase {
     }
     
     public void testOnEventUpdateRows() {
-    	BinlogEventListener binlogEventListener = new BinlogEventListener(createBinaryLogClient(), createGtidSet(), createKafkaProducer());
+    	BinlogEventListener binlogEventListener = new BinlogEventListener(createBinaryLogClient(), createKafkaProducer());
     	
     	binlogEventListener.onEvent(createTableMapEvent(1, "database", "table"));
     	

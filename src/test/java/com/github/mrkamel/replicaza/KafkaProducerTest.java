@@ -1,5 +1,9 @@
 package com.github.mrkamel.replicaza;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.ExponentialBackoffRetry;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -14,7 +18,12 @@ public class KafkaProducerTest extends TestCase {
     }
     
     private KafkaProducer createKafkaProducer() {
-    	return new KafkaProducer("127.0.0.1:9092", 1);
+        CuratorFramework curatorFramework = CuratorFrameworkFactory.newClient("127.0.0.1", new ExponentialBackoffRetry(1000, 3));
+        curatorFramework.start();
+        	
+        GtidSync gtidSync = new GtidSync("/replicaza_test_gtid", curatorFramework.getZookeeperClient());
+        	
+    	return new KafkaProducer("127.0.0.1:9092", 1, gtidSync);
     }
     
     public void testKafkaProducer() {
@@ -22,6 +31,15 @@ public class KafkaProducerTest extends TestCase {
     }
     
     public void testSend() {
-    	createKafkaProducer().send("test-topic", "parition-key", "message");
+    	createKafkaProducer().send("topic", "gtidSet", "operation", "id", "time");
+    }
+    
+    public void testFlush() {
+    	KafkaProducer kafkaProducer = createKafkaProducer();
+    	
+    	kafkaProducer.send("topic", "gtidSet", "operation", "id", "time");
+    	kafkaProducer.send("topic", "gtidSet", "operation", "id", "time");
+    	
+    	kafkaProducer.flush();
     }
 }
