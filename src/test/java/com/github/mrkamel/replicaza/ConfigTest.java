@@ -22,10 +22,10 @@ public class ConfigTest extends TestCase {
     public void testRead() throws IOException {
     	Files.write(Paths.get("/tmp/config.properties"), Arrays.asList("property1=value1", "property2=value2"), Charset.forName("UTF-8"));
 
-    	Config.read("/tmp/config.properties");
+    	Config config = new Config("/tmp/config.properties");
     	
-    	assertEquals("value1", Config.getProperty("property1"));
-    	assertEquals("value2", Config.getProperty("property2"));
+    	assertEquals("value1", config.getProperty("property1"));
+    	assertEquals("value2", config.getProperty("property2"));
     }
     
     public void testGetProperty() {
@@ -33,8 +33,10 @@ public class ConfigTest extends TestCase {
     }
     
     public void testSetProperty() {
-    	Config.setProperty("key", "value");
+    	Config config = new Config();
     	
-    	assertEquals("value", Config.getProperty("key"));
+    	config.setProperty("key", "value");
+    	
+    	assertEquals("value", config.getProperty("key"));
     }
 }

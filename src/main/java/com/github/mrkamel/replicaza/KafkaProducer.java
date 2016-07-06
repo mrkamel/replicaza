@@ -24,6 +24,6 @@ public class KafkaProducer {
 	}
 	
 	public void send(String topic, String partitionKey, String message) {
-		 producer.send(new KeyedMessage<String, String>(topic, partitionKey, message));
+		producer.send(new KeyedMessage<String, String>(topic, partitionKey, message));
 	}
 }

@@ -7,17 +7,23 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class Config {
-	private static final Properties properties = new Properties();
+	private Properties properties = null;
 	
-	public static void read(String path) throws FileNotFoundException, IOException {
+	public Config(String path) throws FileNotFoundException, IOException {
+		this.properties = new Properties();
+		
 		properties.load(new FileInputStream(path));
 	}
 	
-	public static String getProperty(String key) {
+	public Config() {
+		this.properties = new Properties();
+	}
+	
+	public String getProperty(String key) {
 		return properties.getProperty(key);
 	}
 	
-	public static void setProperty(String key, String value) {
+	public void setProperty(String key, String value) {
 		properties.setProperty(key, value);
 	}
 }

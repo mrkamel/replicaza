@@ -12,12 +12,12 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 public class ShutdownHookTest extends TestCase {
-    public ShutdownHookTest(String testName) {
-        super(testName);
+	public ShutdownHookTest(String testName) {
+    	super(testName);
     }
 
     public static Test suite() {
-        return new TestSuite(ShutdownHookTest.class);
+    	return new TestSuite(ShutdownHookTest.class);
     }
     
     private ShutdownHook createShutdownHook() {
@@ -29,7 +29,7 @@ public class ShutdownHookTest extends TestCase {
     			// nothing
     		}
 
-			public void stateChanged(CuratorFramework framework, ConnectionState state) {
+    		public void stateChanged(CuratorFramework framework, ConnectionState state) {
 				// nothing
 			}
     	});

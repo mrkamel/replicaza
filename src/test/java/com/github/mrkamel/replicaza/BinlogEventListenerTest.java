@@ -32,6 +32,11 @@ public class BinlogEventListenerTest extends TestCase {
         return new TestSuite(BinlogEventListenerTest.class);
     }
     
+    public void setUp() {
+    	App.config = new Config();
+    	App.config.setProperty("replicateTables", "");
+    }
+    
     private BinaryLogClient createBinaryLogClient() {
     	return new BinaryLogClient("127.0.0.1", 3306, "root", "");
     }
