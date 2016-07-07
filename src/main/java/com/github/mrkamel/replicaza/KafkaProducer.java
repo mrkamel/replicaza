@@ -58,31 +58,50 @@ public class KafkaProducer extends Thread {
 	}
 	
 	private void send(List<Message> messages) {
-		while(true) {
+		try {
+			sendUnsafe(messages);
+		} catch(Exception e) {
+			e.printStackTrace();
+
 			try {
-				sendUnsafe(messages);
-				
-				return;
-			} catch(Exception e) {
-				e.printStackTrace();
+				Thread.sleep(5000);
+			} catch(InterruptedException interruptedException) {
+				interruptedException.printStackTrace();
 			}
+
+			System.exit(-1);
 		}
 	}
 	
 	private void sendUnsafe(List<Message> messages) {
-		List<KeyedMessage<String, String>> keyedMessages = new ArrayList<KeyedMessage<String, String>>();
-		
-		for(Message message : messages) {
-			JSONObject jsonObject = new JSONObject();
-			
-			jsonObject.put("operation", message.getOperation()).put("id", message.getId()).put("time", message.getTime());
-			
-			keyedMessages.add(new KeyedMessage<String, String>(message.getTopic(), message.getId(), jsonObject.toString()));
+		for(int tries = 0;; tries++) {
+			try {
+				List<KeyedMessage<String, String>> keyedMessages = new ArrayList<KeyedMessage<String, String>>();
+				
+				for(Message message : messages) {
+					JSONObject jsonObject = new JSONObject();
+					
+					jsonObject.put("operation", message.getOperation()).put("id", message.getId()).put("time", message.getTime());
+					
+					keyedMessages.add(new KeyedMessage<String, String>(message.getTopic(), message.getId(), jsonObject.toString()));
+				}
+				
+				producer.send(keyedMessages);
+				
+				gtidSync.setGtidSet(messages.get(messages.size() - 1).getGtidSet());
+				
+				return;
+			} catch(Exception e) {
+				try {
+					Thread.sleep(5000);
+				} catch(InterruptedException interruptedException) {
+					interruptedException.printStackTrace();
+				}
+				
+				if(tries > 2)
+					throw(e);
+			}
 		}
-		
-		producer.send(keyedMessages);
-		
-		gtidSync.setGtidSet(messages.get(messages.size() - 1).getGtidSet());
 	}
 	
 	public void run() {

@@ -10,6 +10,7 @@ public class GtidSync extends Thread {
 	private String gtidSet = "";
 	private CuratorZookeeperClient curatorZookeeperClient;
 	private String zkPath;
+	private boolean closed = false;
 	
 	public GtidSync(String zkPath, CuratorZookeeperClient curatorZookeeperClient) {
 		this.curatorZookeeperClient = curatorZookeeperClient;
@@ -51,7 +52,7 @@ public class GtidSync extends Thread {
 	public void run() {
 		String lastGtidSet = getGtidSet();
 		
-		while(true) {
+		while(!isClosed()) {
 			String currentGtidSet = getGtidSet();
 			
 			try {
@@ -79,5 +80,15 @@ public class GtidSync extends Thread {
 		}
 		
 		return currentGtidSet;
+	}
+	
+	private synchronized boolean isClosed() {
+		return closed;
+	}
+	
+	public synchronized void close() {
+		closed = true;
+		
+		interrupt();
 	}
 }

@@ -43,24 +43,6 @@ public class BinlogEventListener implements EventListener {
 	}
 
 	public void onEvent(Event event) {
-		while(true) {
-			try {
-				onEventUnsafe(event);
-				
-				return;
-			} catch(Exception e) {
-				e.printStackTrace();
-				
-				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException interruptedException) {
-					interruptedException.printStackTrace();
-				}
-			}
-		}
-	}
-
-	private void onEventUnsafe(Event event) {
 		String eventName = event.getHeader().getEventType().name();
 		String time = new SimpleDateFormat("YYYY-MM-YY HH:mm:ss").format(Calendar.getInstance().getTime());
 

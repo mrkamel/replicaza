@@ -7,7 +7,7 @@ import org.apache.curator.framework.recipes.leader.LeaderSelectorListenerAdapter
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
 
 class LeaderListener extends LeaderSelectorListenerAdapter {
-	public void takeLeadership(CuratorFramework curatorFramework) throws InterruptedException {		    	
+	public void takeLeadership(CuratorFramework curatorFramework) throws InterruptedException {
 		try {
 			BinaryLogClient binaryLogClient = new BinaryLogClient(
 		   		App.config.getProperty("mysql.host"),
@@ -34,7 +34,7 @@ class LeaderListener extends LeaderSelectorListenerAdapter {
 		   	binaryLogClient.connect();
 		} catch(Exception e) {
 			e.printStackTrace();
-		} finally {			
+		} finally {	
 			// Sleep some time, but then give someone else a chance to become leader,
 			// because someone else could have better connectivity
     		

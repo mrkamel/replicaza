@@ -38,7 +38,7 @@ public class BlockingQueueTest extends TestCase {
     	
     	queue.put("test");
     	
-    	queue.waitIfNeccessary();
+		queue.waitIfNeccessary();
     	
     	assertEquals("test", queue.poll());
     }
